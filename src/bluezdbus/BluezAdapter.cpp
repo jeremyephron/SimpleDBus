@@ -1,11 +1,12 @@
 #include "BluezAdapter.h"
+#include "interfaces/OrgBluezConstants.h"
 
 #include "simpledbus/base/Logger.h"
 
 #include <iostream>
 
 BluezAdapter::BluezAdapter(SimpleDBus::Connection* conn, std::string path, SimpleDBus::Holder managed_interfaces)
-    : _conn(conn), _path(path), Adapter1{conn, path}, Introspectable{conn, "org.bluez", path} {
+    : _conn(conn), _path(path), Adapter1{conn, path}, Introspectable{conn, ORG_BLUEZ_SERVICE_NAME, path} {
     // std::cout << "Creating BluezAdapter" << std::endl;
 
     PropertyHandler::PropertiesChanged = [&](std::string interface, SimpleDBus::Holder changed_properties,

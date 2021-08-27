@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.16.0)
 
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 project(SIMPLEDBUS)
@@ -49,6 +48,19 @@ target_compile_options(bluezdbus PRIVATE -std=c++17 -fPIC -Wfatal-errors -Wpedan
 
 target_link_libraries(bluezdbus-static PUBLIC simpledbus-static)
 target_link_libraries(bluezdbus PUBLIC simpledbus-static)
+
+# Load constant overrides
+if(OVERRIDE_ORG_BLUEZ_SERVICE_NAME)
+  message("-- [INFO] Overriding ORG_BLUEZ_SERVICE_NAME with ${OVERRIDE_ORG_BLUEZ_SERVICE_NAME}")
+  target_compile_definitions(bluezdbus-static PRIVATE -DORG_BLUEZ_SERVICE_NAME=${OVERRIDE_ORG_BLUEZ_SERVICE_NAME})
+  target_compile_definitions(bluezdbus PRIVATE -DORG_BLUEZ_SERVICE_NAME=${OVERRIDE_ORG_BLUEZ_SERVICE_NAME})
+endif()
+
+if(OVERRIDE_ORG_BLUEZ_DBUS_BUS)
+  message("-- [INFO] Overriding ORG_BLUEZ_DBUS_BUS with ${OVERRIDE_ORG_BLUEZ_DBUS_BUS}")
+  target_compile_definitions(bluezdbus-static PRIVATE -DORG_BLUEZ_DBUS_BUS=${OVERRIDE_ORG_BLUEZ_DBUS_BUS})
+  target_compile_definitions(bluezdbus PRIVATE -DORG_BLUEZ_DBUS_BUS=${OVERRIDE_ORG_BLUEZ_DBUS_BUS})
+endif()
 
 # Export the variables needed by the parent project
 if(NOT ${STANDALONE})

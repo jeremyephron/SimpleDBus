@@ -1,8 +1,10 @@
 #include "GattService1.h"
+#include "OrgBluezConstants.h"
 
 #include <iostream>
 
-GattService1::GattService1(SimpleDBus::Connection* conn, std::string path) : _conn(conn), _path(path), Properties{conn, "org.bluez", path}, PropertyHandler(path) {
+GattService1::GattService1(SimpleDBus::Connection* conn, std::string path)
+    : _conn(conn), _path(path), Properties{conn, ORG_BLUEZ_SERVICE_NAME, path}, PropertyHandler(path) {
     // std::cout << "Creating org.bluez.GattService1: " << path << std::endl;
 }
 

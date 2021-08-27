@@ -1,21 +1,22 @@
 #include "BluezService.h"
+#include "interfaces/OrgBluezConstants.h"
 
 #include <algorithm>
 
-BluezService::BluezService() : conn(DBUS_BUS_SYSTEM), object_manager(&conn, "org.bluez", "/"), Introspectable{&conn, "org.bluez", "/"} {
+BluezService::BluezService() : conn(ORG_BLUEZ_DBUS_BUS), object_manager(&conn, ORG_BLUEZ_SERVICE_NAME, "/"), Introspectable{&conn, ORG_BLUEZ_SERVICE_NAME, "/"} {
     object_manager.InterfacesAdded = [&](std::string path, SimpleDBus::Holder options) { add_path(path, options); };
     object_manager.InterfacesRemoved = [&](std::string path, SimpleDBus::Holder options) {
         remove_path(path, options);
     };
 }
 
-BluezService::~BluezService() { conn.remove_match("type='signal',sender='org.bluez'"); }
+BluezService::~BluezService() { conn.remove_match("type='signal',sender='" ORG_BLUEZ_SERVICE_NAME "'"); }
 
 void BluezService::init() {
     conn.init();
     object_manager.GetManagedObjects(true);  // Feed the objects via callback.
 
-    conn.add_match("type='signal',sender='org.bluez'");
+    conn.add_match("type='signal',sender='" ORG_BLUEZ_SERVICE_NAME "'");
 }
 
 void BluezService::run_async() {

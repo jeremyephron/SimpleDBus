@@ -1,11 +1,12 @@
 #include "Device1.h"
+#include "OrgBluezConstants.h"
 
 #include "simpledbus/base/Logger.h"
 
 const std::string Device1::_interface_name = "org.bluez.Device1";
 
 Device1::Device1(SimpleDBus::Connection* conn, std::string path)
-    : _conn(conn), _path(path), _address(""), _name(""), _connected(false), _services_resolved(false), Properties{conn, "org.bluez", path}, PropertyHandler(path) {}
+    : _conn(conn), _path(path), _address(""), _name(""), _connected(false), _services_resolved(false), Properties{conn, ORG_BLUEZ_SERVICE_NAME, path}, PropertyHandler(path) {}
 
 Device1::~Device1() {}
 
@@ -43,7 +44,7 @@ void Device1::Connect() {
     if (!_connected) {
         // Only attempt connection if disconnected.
         LOG_F(DEBUG, "%s -> Connect", _path.c_str());
-        auto msg = SimpleDBus::Message::create_method_call("org.bluez", _path, _interface_name, "Connect");
+        auto msg = SimpleDBus::Message::create_method_call(ORG_BLUEZ_SERVICE_NAME, _path, _interface_name, "Connect");
         _conn->send_with_reply_and_block(msg);
     } else {
         LOG_F(WARN, "%s is already connected...", _path.c_str());
@@ -63,7 +64,7 @@ void Device1::Disconnect() {
     if (_connected) {
         // Only attempt disconnection if connected.
         LOG_F(DEBUG, "%s -> Disconnect", _path.c_str());
-        auto msg = SimpleDBus::Message::create_method_call("org.bluez", _path, _interface_name, "Disconnect");
+        auto msg = SimpleDBus::Message::create_method_call(ORG_BLUEZ_SERVICE_NAME, _path, _interface_name, "Disconnect");
         _conn->send_with_reply_and_block(msg);
     } else {
         LOG_F(WARN, "%s is already disconnected...", _path.c_str());
@@ -78,14 +79,14 @@ void Device1::Disconnect() {
 void Device1::Action_Connect() {
     // Only attempt connection if disconnected.
     LOG_F(DEBUG, "%s -> Connect", _path.c_str());
-    auto msg = SimpleDBus::Message::create_method_call("org.bluez", _path, _interface_name, "Connect");
+    auto msg = SimpleDBus::Message::create_method_call(ORG_BLUEZ_SERVICE_NAME, _path, _interface_name, "Connect");
     _conn->send_with_reply_and_block(msg);
 }
 
 void Device1::Action_Disconnect() {
     // Only attempt disconnection if connected.
     LOG_F(DEBUG, "%s -> Disconnect", _path.c_str());
-    auto msg = SimpleDBus::Message::create_method_call("org.bluez", _path, _interface_name, "Disconnect");
+    auto msg = SimpleDBus::Message::create_method_call(ORG_BLUEZ_SERVICE_NAME, _path, _interface_name, "Disconnect");
     _conn->send_with_reply_and_block(msg);
 }
 

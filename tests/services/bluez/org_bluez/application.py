@@ -6,7 +6,7 @@ from dbus_next import Variant, DBusError
 class Application(ServiceInterface):
     def __init__(self, bus):
         self.bus = bus
-        super().__init__('test.simpledbus')
+        super().__init__('test.application')
 
     def export(self):
         self.bus.export('/', self)

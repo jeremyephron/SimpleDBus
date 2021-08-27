@@ -27,7 +27,7 @@ void millisecond_delay(int ms) {
  * with a device exposing the Nordic UART service.
  */
 int main(int argc, char* argv[]) {
-    std::string mac_address = argv[1];
+    std::string mac_address = "00:00:00:00:00:01";
     bluez_service.init();
 
     std::thread* async_thread = new std::thread(async_thread_function);
@@ -38,45 +38,17 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    adapter->OnDiscoveryStarted = [](){
-        std::cout << "Discovery started." << std::endl;
-    };
-
-    adapter->OnDiscoveryStopped = [](){
-        std::cout << "Discovery stopped." << std::endl;
-    };
-
-    adapter->OnDeviceFound = [](std::shared_ptr<BluezDevice> device) {
-        std::cout << "Device found: " << device->get_address() << std::endl;
-    };
-
-    adapter->OnDeviceUpdated = [](std::shared_ptr<BluezDevice> device) {
-        std::cout << "Device updated: " << device->get_address() << std::endl;
-    };
-
     adapter->discovery_filter_transport_set("le");
     adapter->StartDiscovery();
-    millisecond_delay(5000);
+    millisecond_delay(3000);
     adapter->StopDiscovery();
+    millisecond_delay(3000);
 
     auto device = adapter->get_device(mac_address);
     if (device != nullptr) {
-
-        device->OnConnected = [](){
-            std::cout << "Device connected" << std::endl;
-        };
-
-        device->OnServicesResolved = [](){
-            std::cout << "Device services resolved" << std::endl;
-        };
-
-        device->OnDisconnected = [](){
-            std::cout << "Device disconnected" << std::endl;
-        };
-
         device->Connect();
 
-        // In theory, we should wait for the OnConnect and OnServicesResolved event.
+        // In theory, we should wait for the OnConnect event.
         millisecond_delay(1000);
 
         auto characteristic_tx = device->get_characteristic("6e400001-b5a3-f393-e0a9-e50e24dcca9e",
@@ -84,7 +56,11 @@ int main(int argc, char* argv[]) {
         auto characteristic_rx = device->get_characteristic("6e400001-b5a3-f393-e0a9-e50e24dcca9e",
                                                             "6e400002-b5a3-f393-e0a9-e50e24dcca9e");
         if (characteristic_tx != nullptr) {
-            characteristic_tx->ValueChanged = [&](std::vector<uint8_t> new_value) { /* Data! */ };
+            characteristic_tx->ValueChanged = [&](std::vector<uint8_t> new_value) {
+                std::string data((char*)new_value.data(), new_value.size());
+                std::cout << data << std::endl;
+                 /* Data! */ 
+            };
             characteristic_tx->StartNotify();
         }
 
@@ -97,6 +73,8 @@ int main(int argc, char* argv[]) {
         characteristic_tx->StopNotify();
         device->Disconnect();
         millisecond_delay(1000);
+    } else {
+        std::cout << "Device not found" << std::endl;
     }
 
     async_thread_active = false;

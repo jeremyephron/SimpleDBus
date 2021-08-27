@@ -1,11 +1,12 @@
 #include "Adapter1.h"
+#include "OrgBluezConstants.h"
 
 #include "simpledbus/base/Logger.h"
 
 const std::string Adapter1::_interface_name = "org.bluez.Adapter1";
 
 Adapter1::Adapter1(SimpleDBus::Connection* conn, std::string path)
-    : _conn(conn), _path(path), _discovering(false), Properties{conn, "org.bluez", path}, PropertyHandler(path) {}
+    : _conn(conn), _path(path), _discovering(false), Properties{conn, ORG_BLUEZ_SERVICE_NAME, path}, PropertyHandler(path) {}
 
 Adapter1::~Adapter1() {}
 
@@ -28,7 +29,7 @@ void Adapter1::remove_option(std::string option_name) {}
 void Adapter1::StartDiscovery() {
     if (!_discovering) {
         LOG_F(DEBUG, "%s -> StartDiscovery", _path.c_str());
-        auto msg = SimpleDBus::Message::create_method_call("org.bluez", _path, _interface_name, "StartDiscovery");
+        auto msg = SimpleDBus::Message::create_method_call(ORG_BLUEZ_SERVICE_NAME, _path, _interface_name, "StartDiscovery");
         _conn->send_with_reply_and_block(msg);
     } else {
         LOG_F(WARN, "%s is already discoverying...", _path.c_str());
@@ -37,7 +38,7 @@ void Adapter1::StartDiscovery() {
 void Adapter1::StopDiscovery() {
     if (_discovering) {
         LOG_F(DEBUG, "%s -> StopDiscovery", _path.c_str());
-        auto msg = SimpleDBus::Message::create_method_call("org.bluez", _path, _interface_name, "StopDiscovery");
+        auto msg = SimpleDBus::Message::create_method_call(ORG_BLUEZ_SERVICE_NAME, _path, _interface_name, "StopDiscovery");
         _conn->send_with_reply_and_block(msg);
         // NOTE: It might take a few seconds until the peripheral reports that is has actually stopped discovering.
     } else {
@@ -47,13 +48,13 @@ void Adapter1::StopDiscovery() {
 
 void Adapter1::Action_StartDiscovery() {
     LOG_F(DEBUG, "%s -> StartDiscovery", _path.c_str());
-    auto msg = SimpleDBus::Message::create_method_call("org.bluez", _path, _interface_name, "StartDiscovery");
+    auto msg = SimpleDBus::Message::create_method_call(ORG_BLUEZ_SERVICE_NAME, _path, _interface_name, "StartDiscovery");
     _conn->send_with_reply_and_block(msg);
 }
 
 void Adapter1::Action_StopDiscovery() {
     LOG_F(DEBUG, "%s -> StopDiscovery", _path.c_str());
-    auto msg = SimpleDBus::Message::create_method_call("org.bluez", _path, _interface_name, "StopDiscovery");
+    auto msg = SimpleDBus::Message::create_method_call(ORG_BLUEZ_SERVICE_NAME, _path, _interface_name, "StopDiscovery");
     _conn->send_with_reply_and_block(msg);
     // NOTE: It might take a few seconds until the peripheral reports that is has actually stopped discovering.
 }
@@ -66,7 +67,7 @@ bool Adapter1::Property_Discovering() {
 
 SimpleDBus::Holder Adapter1::GetDiscoveryFilters() {
     LOG_F(DEBUG, "%s -> GetDiscoveryFilters", _path.c_str());
-    auto msg = SimpleDBus::Message::create_method_call("org.bluez", _path, _interface_name, "GetDiscoveryFilters");
+    auto msg = SimpleDBus::Message::create_method_call(ORG_BLUEZ_SERVICE_NAME, _path, _interface_name, "GetDiscoveryFilters");
     SimpleDBus::Message reply_msg = _conn->send_with_reply_and_block(msg);
     SimpleDBus::Holder discovery_filters = reply_msg.extract();
     // std::cout << discovery_filters.represent() << std::endl;
@@ -75,7 +76,7 @@ SimpleDBus::Holder Adapter1::GetDiscoveryFilters() {
 
 void Adapter1::SetDiscoveryFilter(SimpleDBus::Holder properties) {
     LOG_F(DEBUG, "%s -> SetDiscoveryFilters", _path.c_str());
-    auto msg = SimpleDBus::Message::create_method_call("org.bluez", _path, _interface_name, "SetDiscoveryFilter");
+    auto msg = SimpleDBus::Message::create_method_call(ORG_BLUEZ_SERVICE_NAME, _path, _interface_name, "SetDiscoveryFilter");
     msg.append_argument(properties, "a{sv}");
     _conn->send_with_reply_and_block(msg);
 }
